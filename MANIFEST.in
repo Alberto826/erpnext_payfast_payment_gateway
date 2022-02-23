@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include payment_gateway_payfast *.css
+recursive-include payment_gateway_payfast *.csv
+recursive-include payment_gateway_payfast *.html
+recursive-include payment_gateway_payfast *.ico
+recursive-include payment_gateway_payfast *.js
+recursive-include payment_gateway_payfast *.json
+recursive-include payment_gateway_payfast *.md
+recursive-include payment_gateway_payfast *.png
+recursive-include payment_gateway_payfast *.py
+recursive-include payment_gateway_payfast *.svg
+recursive-include payment_gateway_payfast *.txt
+recursive-exclude payment_gateway_payfast *.pyc
