@@ -18,7 +18,7 @@ Supported process flows: Web forms and payment requests.
 ![Web form flow](./Web-form-flow.jpg)
 
 
-### Web Form process flow
+### Payment Request process flow
 ![Payment Request flow](./Payment-request-flow.jpg)
 
 
