@@ -1,0 +1,73 @@
+{% extends "templates/web.html" %}
+
+{% block title %} Payment {% endblock %}
+
+{%- block header -%}{% endblock %}
+
+{% block script %}
+{% endblock %}
+
+{%- block page_content -%}
+<body>
+	<div class="container">
+        <h2>Checkout Confirmation</h2>
+
+		<form method="post" action="{{ payment_details.payfast_url }}" name="payfast_checkout_form">
+			<input type="hidden" name="merchant_id" value="{{submission_data.merchant_id}}">
+            <input type="hidden" name="merchant_key" value="{{submission_data.merchant_key}}">
+            <input type="hidden" name="return_url" value="{{submission_data.return_url}}">
+            <input type="hidden" name="cancel_url" value="{{submission_data.cancel_url}}">
+            <input type="hidden" name="notify_url" value="{{submission_data.notify_url}}">
+            <div class="form-group row">
+                <label for="name_first" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="" readonly class="form-control" id="name_first" name="name_first" value="{{payment_details.payer_name}}">
+                </div>
+            </div>
+            <!-- <div class="form-group row">
+                <label for="email_address" class="col-sm-2 col-form-label">Email Address</label>
+                <div class="col-sm-10">
+                    <input type="email" readonly class="form-control" id="email_address" name="email_address" value="{{payment_details.payer_email}}">
+                </div>
+            </div> -->
+            <div class="form-group row">
+                <label for="m_payment_id" class="col-sm-2 col-form-label">Order ID</label>
+                <div class="col-sm-10">
+                    <input type="" readonly class="form-control" id="m_payment_id" name="m_payment_id" value="{{payment_details.order_id}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="amount" class="col-sm-2 col-form-label">Amount ({{payment_details.currency}})</label>
+                <div class="col-sm-10">
+                    <input type="" readonly class="form-control" id="amount" name="amount" value="{{payment_details.amount}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="item_name" class="col-sm-2 col-form-label">Title</label>
+                <div class="col-sm-10">
+                    <input type="" readonly class="form-control" id="item_name" name="item_name" value="{{payment_details.title}}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="item_description" class="col-sm-2 col-form-label">Description</label>
+                <div class="col-sm-10">
+                    <input type="" readonly class="form-control" id="item_description" name="item_description" value="{{payment_details.description}}">
+                </div>
+            </div>
+            <input type="hidden" name="custom_str1" value="{{submission_data.custom_str1}}">
+            
+            <input type="hidden" name="signature" value="{{payment_details.signature}}">
+            <input class="btn btn-secondary" type="button" value="Go back" onclick="history.back()">
+            <input class="btn btn-primary" type="submit" value="Proceed to Payment">
+		</form>
+	</div>
+</body>
+{% endblock %}
+
+{% block style %}
+<style>
+	.web-footer {
+		display: none;
+	}
+</style>
+{% endblock %}

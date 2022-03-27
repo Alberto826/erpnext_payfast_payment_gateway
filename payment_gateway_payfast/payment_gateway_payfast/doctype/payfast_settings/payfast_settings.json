@@ -1,0 +1,205 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:gateway_name",
+ "creation": "2022-03-15 23:03:29.123740",
+ "description": "Configure the Payfast Payment Gateway settings. For more info on the integration and API documentation, visit https://developers.payfast.co.za/docs\n",
+ "doctype": "DocType",
+ "documentation": "https://developers.payfast.co.za/docs",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "gateway_name",
+  "merchant_id",
+  "merchant_key",
+  "passphrase",
+  "column_break_5",
+  "environment",
+  "return_url",
+  "cancel_url",
+  "section_break_10",
+  "enable_accounts_integration",
+  "company",
+  "cost_center",
+  "income_account",
+  "expense_account",
+  "column_break_12",
+  "debit_to",
+  "paid_to",
+  "mode_of_payment",
+  "section_break_13",
+  "test_connection"
+ ],
+ "fields": [
+  {
+   "description": "The Merchant ID as given by the PayFast system.",
+   "fieldname": "merchant_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Merchant ID",
+   "reqd": 1
+  },
+  {
+   "description": "The Merchant Key as given by the PayFast system.",
+   "fieldname": "merchant_key",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Merchant Key",
+   "reqd": 1
+  },
+  {
+   "description": "The passphrase is an extra security feature, used as a \"salt\", and is set by the Merchant in the Settings section of their PayFast Dashboard.",
+   "fieldname": "passphrase",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Passphrase",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Sandbox",
+   "description": "The PayFast sandbox allows you to test the various components of your payment integration without exchanging money. To make your payments live, simply switch to the live environment.",
+   "fieldname": "environment",
+   "fieldtype": "Select",
+   "label": "Environment",
+   "options": "Sandbox\nLive",
+   "reqd": 1
+  },
+  {
+   "description": "Optional. This is for when you have a URL for custom handling of successful redirects from the Payfast website.",
+   "fieldname": "return_url",
+   "fieldtype": "Data",
+   "label": "Return URL"
+  },
+  {
+   "description": "Optional. This is for when you have a URL for custom handling of cancellation redirects from the Payfast website.",
+   "fieldname": "cancel_url",
+   "fieldtype": "Data",
+   "label": "Cancel URL"
+  },
+  {
+   "fieldname": "section_break_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "Tests and validates the authentication credentials with Payfast. You can only save this Doc after a successful connection has been established. Once Doc has been saved, merchant credentials will need to be re-entered to perform the test again.",
+   "fieldname": "test_connection",
+   "fieldtype": "Button",
+   "label": "Test Connection"
+  },
+  {
+   "fieldname": "gateway_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payfast Gateway Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_accounts_integration",
+   "fieldtype": "Check",
+   "label": "Enable Accounts Integration"
+  },
+  {
+   "default": ":Company",
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "description": "This is where the full Payfast payment is reflected as an income in the Profit & Loss Statement.",
+   "fieldname": "income_account",
+   "fieldtype": "Link",
+   "label": "Income Account",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Account"
+  },
+  {
+   "default": ":Company",
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "description": "A Cost Center is a part of an organization where costs or income can be charged.",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_13",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": ":Company",
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "description": "This ensures the appropriate chart of accounts, particularly for multi-company setups.",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Company"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "description": "A \"Receivable\" account type which is an asset account and reported in the Balance Sheet.",
+   "fieldname": "debit_to",
+   "fieldtype": "Link",
+   "label": "Debit To",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "description": "The Mode of Payment stores the medium through which payments are made or received. Setting the default Account will this account fetched into Payment Entries. It is recommended that you create an appropriate Mode of Payment that sets the Payfast \"Bank\" Account as default.",
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode Of Payment",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Mode of Payment"
+  },
+  {
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "description": "This is where the Payfast transaction fees will be recorded and reflected in the Profit & Loss Statement",
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "description": "A \"Bank\" account type which is an asset account and reported in the Balance Sheet. ",
+   "fieldname": "paid_to",
+   "fieldtype": "Link",
+   "label": "Paid To",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Account"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-03-27 11:58:10.425836",
+ "modified_by": "Administrator",
+ "module": "Payment Gateway Payfast",
+ "name": "Payfast Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
