@@ -24,8 +24,10 @@ class PayfastSettings(Document):
 		'ZAR': 5
 	}
 
-	def validate(self):
+	def on_update(self):
+		print('Validating...')
 		create_payment_gateway('Payfast-' + self.gateway_name, settings='Payfast Settings', controller=self.gateway_name)
+		print('Created Payment Gateway Controller...')
 		call_hook_method('payment_gateway_enabled', gateway='Payfast-' + self.gateway_name)
 
 	def validate_transaction_currency(self, currency):
@@ -160,5 +162,10 @@ def test_connection(data):
 	message = message.replace('/onsite/images/',f"{environment_url(env)}/onsite/images/")
 	# message = message.replace('/eng/js/',f"{environment_url(env)}/eng/js/")
 	# print(response.text)
-	return {'status_code': response.status_code, 'message': message}
+	if env=='Live':
+		message = 'Merchant ID and/or Merchant Key and/or Passphrase are either incorrect or does not exist in the Payfast Live environment. Please ensure that these are configured in the Developer Settings.'
+		if response.status_code==200:
+			message = 'Connection was successful.'
+	return {'status_code':response.status_code, 'message': message}
+	
 

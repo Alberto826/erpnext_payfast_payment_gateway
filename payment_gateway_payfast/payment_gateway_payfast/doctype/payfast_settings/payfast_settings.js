@@ -51,11 +51,7 @@ frappe.ui.form.on('Payfast Settings', {
 		frm.set_query('mode_of_payment', () => {
 			return {
 				filters: {
-					account_type: 'Income Account',
-					root_type: 'Income',
-					report_type: 'Profit and Loss',
-					account_currency: 'ZAR',
-					company: frm.doc.company
+					type: 'Bank',
 				}
 			}
 		});

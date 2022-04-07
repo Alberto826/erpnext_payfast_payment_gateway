@@ -105,7 +105,6 @@
    "label": "Enable Accounts Integration"
   },
   {
-   "default": ":Company",
    "depends_on": "eval:doc.enable_accounts_integration==1;",
    "description": "This is where the full Payfast payment is reflected as an income in the Profit & Loss Statement.",
    "fieldname": "income_account",
@@ -115,7 +114,6 @@
    "options": "Account"
   },
   {
-   "default": ":Company",
    "depends_on": "eval:doc.enable_accounts_integration==1;",
    "description": "A Cost Center is a part of an organization where costs or income can be charged.",
    "fieldname": "cost_center",
@@ -129,7 +127,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "default": ":Company",
    "depends_on": "eval:doc.enable_accounts_integration==1;",
    "description": "This ensures the appropriate chart of accounts, particularly for multi-company setups.",
    "fieldname": "company",
@@ -181,7 +178,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-27 11:58:10.425836",
+ "modified": "2022-04-07 19:42:30.241160",
  "modified_by": "Administrator",
  "module": "Payment Gateway Payfast",
  "name": "Payfast Settings",
