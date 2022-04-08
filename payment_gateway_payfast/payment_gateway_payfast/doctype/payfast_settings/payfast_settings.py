@@ -25,9 +25,7 @@ class PayfastSettings(Document):
 	}
 
 	def on_update(self):
-		print('Validating...')
 		create_payment_gateway('Payfast-' + self.gateway_name, settings='Payfast Settings', controller=self.gateway_name)
-		print('Created Payment Gateway Controller...')
 		call_hook_method('payment_gateway_enabled', gateway='Payfast-' + self.gateway_name)
 
 	def validate_transaction_currency(self, currency):

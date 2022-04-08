@@ -78,6 +78,7 @@
    "description": "Optional. This is for when you have a URL for custom handling of cancellation redirects from the Payfast website.",
    "fieldname": "cancel_url",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Cancel URL"
   },
   {
@@ -178,7 +179,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-07 19:42:30.241160",
+ "modified": "2022-04-08 18:51:36.408101",
  "modified_by": "Administrator",
  "module": "Payment Gateway Payfast",
  "name": "Payfast Settings",

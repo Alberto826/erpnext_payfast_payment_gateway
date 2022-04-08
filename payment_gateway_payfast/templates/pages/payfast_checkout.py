@@ -21,14 +21,14 @@ def get_context(context):
 		'item_description':data.get('description') or '',
 		'custom_str1':data.get('integration_request_id'),
 		'name_first':data.get('payer_name') or '',
-		# 'email_address':data.get('payer_email') or '',
+		'email_address':data.get('payer_email') or '',
 		'm_payment_id':data.get('order_id') or '',
 		'merchant_id':context.gateway_details.get('merchant_id') or '',
 		'merchant_key':context.gateway_details.get('merchant_key') or '',
 		'return_url':context.gateway_details.get('return_url') or f"{frappe.utils.get_url()}/payfast_success",
-		'cancel_url':f"https://16c8-102-132-149-57.ngrok.io/payfast_cancel?integration_request_id={data.get('integration_request_id')}",
+		'cancel_url':f"{frappe.utils.get_url()}/payfast_cancel?integration_request_id={data.get('integration_request_id')}",
 		# 'cancel_url':data.get('redirect_to') or '',
-		'notify_url':'https://16c8-102-132-149-57.ngrok.io/payfast_notify',
+		'notify_url':f"{frappe.utils.get_url()}/payfast_notify",
 		# 'notify_url':context.gateway_details.get('notify_url') or f"{frappe.utils.get_url()}/payfast_notify",
 	}
 	submission_data=build_submission_data(submission_data)
