@@ -12,6 +12,7 @@ def get_context(context):
 	context.no_cache = 1
 	data = frappe.form_dict
 	context.payment_details = data
+	print('Checkout data',data)
 	gateway_doc = frappe.get_doc(data.get('gateway_doctype'), data.get('gateway_docname'))
 	context.gateway_details=gateway_doc.as_dict()
 	context.gateway_details.merchant_key=gateway_doc.get_password('merchant_key')
@@ -35,10 +36,18 @@ def get_context(context):
 	submission_data['signature'] = generateApiSignature(submission_data, passPhrase=gateway_doc.get_password('passphrase'))
 	context.payment_details['signature']=submission_data['signature']
 	context.submission_data=submission_data
-	ref_doc =  frappe.get_doc(data.get('reference_doctype'), data.get('reference_docname'))
-	context.reference_details = ref_doc.as_dict()
-
-	# print(context)
+	web_ref_doc =  frappe.get_doc(data.get('reference_doctype'), data.get('reference_docname'))
+	context.reference_details = web_ref_doc.as_dict()
+	
+	if data.get('reference_doctype')=='Web Form':
+		
+		reference_doc = frappe.get_doc(web_ref_doc.doc_type, data.get('order_id'))
+		meta = frappe.get_meta(web_ref_doc.doc_type)
+		if meta.has_field('paid'):
+			if reference_doc.paid:
+				frappe.local.response["type"] = "redirect"
+				frappe.local.response["location"] = data.get('redirect_to')
+				raise frappe.Redirect
 	return context
 
 

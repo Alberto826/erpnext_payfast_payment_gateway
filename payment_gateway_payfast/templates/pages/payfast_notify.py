@@ -190,6 +190,12 @@ def get_context(context):
 				payment_entry.save(ignore_permissions=True)
 				payment_entry.submit()
 				# print('Payment Entry', payment_entry.as_dict())
+				web_ref_doc =  frappe.get_doc(integration_request.get('reference_doctype'), integration_request.get('reference_docname'))
+				reference_doc = frappe.get_doc(web_ref_doc.doc_type,integration_data.get('order_id'))
+				meta = frappe.get_meta(web_ref_doc.doc_type)
+				if meta.has_field('paid'):
+					reference_doc.paid=True
+					reference_doc.save(ignore_permissions=True)
 			except Exception as e: 
 				print('Payment Gateway completion process error', e)
 				traceback.print_exc()
