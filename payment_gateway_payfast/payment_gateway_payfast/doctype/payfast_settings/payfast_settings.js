@@ -55,11 +55,20 @@ frappe.ui.form.on('Payfast Settings', {
 				}
 			}
 		});
+		frm.set_query('price_list', () => {
+			return {
+				filters: {
+					selling: 1,
+				}
+			}
+		});
 	}
 });
 
 frappe.ui.form.on('Payfast Settings', 'test_connection', function(){
 	// cur_frm.doc.test_connection.read_only=1;
+	cur_frm.set_df_property('test_connection','read_only', 1);
+	cur_frm.set_df_property('test_connection','label','Testing, Please Wait...');
 	frappe.call({
 		method:'payment_gateway_payfast.payment_gateway_payfast.doctype.payfast_settings.payfast_settings.test_connection',
 		args: { data:{
@@ -69,7 +78,10 @@ frappe.ui.form.on('Payfast Settings', 'test_connection', function(){
 			environment: cur_frm.doc.environment
 		}},
 		callback: (r) => {
-			console.log(r)
+			// console.log(r)
+			// cur_frm.doc.test_connection.read_only=0;
+			cur_frm.set_df_property('test_connection','label','Test Connection');
+			cur_frm.set_df_property('test_connection','read_only', 0);
 			if (r.message.status_code==200){
 				frappe.msgprint({
 					title: __('Test Connection Success'),

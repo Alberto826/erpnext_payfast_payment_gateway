@@ -124,7 +124,7 @@ def get_context(context):
 						'due_date': frappe.utils.today(), #date
 						'currency': integration_data.get('currency'), #link
 						'conversion_rate': 1.0, #float
-						'selling_price_list': 'Standard Selling', #link
+						'selling_price_list': gateway_doc.price_list, #link
 						'price_list_currency': integration_data.get('currency'), #link
 						'plc_conversion_rate': 1.0, #float
 						'base_grand_total': integration_data.get('amount'),

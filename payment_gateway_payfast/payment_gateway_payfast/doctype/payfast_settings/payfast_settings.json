@@ -27,6 +27,7 @@
   "debit_to",
   "paid_to",
   "mode_of_payment",
+  "price_list",
   "section_break_13",
   "test_connection"
  ],
@@ -101,6 +102,7 @@
   },
   {
    "default": "0",
+   "description": "The below details are required to create a sales invoice (for web form payment requests) and subsequent payment entries when payment is successful. ",
    "fieldname": "enable_accounts_integration",
    "fieldtype": "Check",
    "label": "Enable Accounts Integration"
@@ -175,11 +177,19 @@
    "label": "Paid To",
    "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
    "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.enable_accounts_integration==1;",
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "mandatory_depends_on": "eval:doc.enable_accounts_integration==1;",
+   "options": "Price List"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-08 18:51:36.408101",
+ "modified": "2022-04-18 17:00:57.789293",
  "modified_by": "Administrator",
  "module": "Payment Gateway Payfast",
  "name": "Payfast Settings",
