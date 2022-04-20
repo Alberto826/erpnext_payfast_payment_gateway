@@ -14,6 +14,13 @@ Supported currencies = ZAR (South African Rand)
 
 Supported process flows: Web forms and payment requests.
 
+### Installation
+bench --site [sitename] get-app https://github.com/Alberto826/erpnext_payfast_payment_gateway --branch [release tag]
+
+bench --site [sitename] install-app payment_gateway_payfast
+
+bench --site [sitename] migrate
+
 ### Web Form process flow
 ![Web form flow](./Web-form-flow.jpg)
 
@@ -27,10 +34,12 @@ Supported process flows: Web forms and payment requests.
 Doctype: Payfast Settings
 
 The first section is necessary to ensure successful integration with Payfast
+
 Requirement: A merchant account with Payfast.
 ![Payment Integration](./Payfast-settings-form.JPG)
 
 The second optional section is necessary to ensure successful integration with ERPNext Accounts module
+
 Requirement: ERPNext app installed
 ![Accounts Integration](./Payfast-settings-form-accounts.JPG)
 
