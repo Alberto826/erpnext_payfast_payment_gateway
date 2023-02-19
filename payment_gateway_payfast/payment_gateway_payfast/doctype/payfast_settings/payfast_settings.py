@@ -12,8 +12,8 @@ import requests
 import socket
 from urllib.parse import urlencode
 from frappe.utils import get_url, call_hook_method, cint, flt
-from frappe.integrations.utils import make_get_request, make_post_request, create_request_log, create_payment_gateway
-
+from frappe.integrations.utils import make_get_request, make_post_request, create_request_log
+from payments.utils import create_payment_gateway
 
 class PayfastSettings(Document):
 	supported_currencies = [
