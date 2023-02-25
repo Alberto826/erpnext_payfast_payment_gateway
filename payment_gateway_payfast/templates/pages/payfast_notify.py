@@ -88,7 +88,8 @@ def get_context(context):
 			payment_entry.save(ignore_permissions=True)
 			payment_entry.submit()
 			# print('Payment Entry', payment_entry.as_dict())
-		if integration_request.get('reference_doctype')=='Web Form':
+		#if integration_request.get('reference_doctype')=='Web Form':
+		else: #assumes the reference_doctype is a Web Form
 			try:
 				user = frappe.get_doc('User',integration_data.get('payer_email'))
 				user.append_roles('Customer')
