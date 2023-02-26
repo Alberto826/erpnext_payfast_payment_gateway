@@ -62,6 +62,14 @@ frappe.ui.form.on('Payfast Settings', {
 				}
 			}
 		});
+		frm.set_query('cost_center', () => {
+			return {
+				filters: {
+					is_group: 0,
+					disabled: 0,
+				}
+			}
+		});
 	}
 });
 
