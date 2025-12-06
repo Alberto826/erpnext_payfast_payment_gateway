@@ -78,7 +78,8 @@ frappe.ui.form.on('Payfast Settings', 'test_connection', function(){
 	cur_frm.set_df_property('test_connection','read_only', 1);
 	cur_frm.set_df_property('test_connection','label','Testing, Please Wait...');
 	frappe.call({
-		method:'payment_gateway_payfast.payment_gateway_payfast.doctype.payfast_settings.payfast_settings.test_connection',
+		// method:'payment_gateway_payfast.payment_gateway_payfast.doctype.payfast_settings.payfast_settings.test_connection',
+		method:'payment_gateway_payfast.api.test_connection.test_connection',
 		args: { data:{
 			merchant_id: cur_frm.doc.merchant_id,
 			merchant_key: cur_frm.doc.merchant_key,

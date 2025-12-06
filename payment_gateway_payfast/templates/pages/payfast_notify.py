@@ -4,11 +4,10 @@ import traceback
 from werkzeug.urls import url_parse
 import frappe
 from frappe import _
-from frappe.utils import flt
 from urllib.parse import parse_qsl, quote_plus
 import hashlib
 import json
-from payment_gateway_payfast.payment_gateway_payfast.doctype.payfast_settings.payfast_settings import validate_payfast_host, validate_payfast_signature, validate_payfast_payment_amount, validate_payfast_transaction
+from payment_gateway_payfast.payment_gateway_payfast.utils import *
 from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
 
 def get_context(context):
