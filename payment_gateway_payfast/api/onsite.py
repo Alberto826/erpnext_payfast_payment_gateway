@@ -9,11 +9,15 @@ from frappe.integrations.utils import create_request_log
 @frappe.whitelist()
 def onsite(**data):
 	data = data if isinstance(data, dict) else json.loads(data)
+
+	data["app_settings_doc"] = frappe.request.args.get('app_settings_doc', data.get('app_settings_doc', None))
+	data["app_settings_doc_payment_gateway"] = frappe.request.args.get('app_settings_doc_payment_gateway', data.get('app_settings_doc_payment_gateway', None))
+	data["payment_gateway"] = frappe.request.args.get('payment_gateway', data.get('payment_gateway', None))
 	
 	# Get Payment Gateway Settings from params
-	app_settings_doc = frappe.request.args.get('app_settings_doc')
-	app_settings_doc_payment_gateway = frappe.request.args.get('app_settings_doc_payment_gateway')
-	payment_gateway_name = frappe.request.args.get('payment_gateway')
+	app_settings_doc = data.get('app_settings_doc')
+	app_settings_doc_payment_gateway = data.get('app_settings_doc_payment_gateway')
+	payment_gateway_name = data.get('payment_gateway')
 	payment_gateway = get_payment_gateway(app_settings_doc, app_settings_doc_payment_gateway, payment_gateway_name)
 	payment_gateway_settings = get_payment_gateway_settings(payment_gateway)
 
@@ -25,8 +29,11 @@ def onsite(**data):
 	signature = generateApiSignature(data, passPhrase=payment_gateway_settings.get_password("passphrase"))
 	data['signature'] = signature
 
+	frappe.log_error("Payfast Onsite Payment Request Data", json.dumps(data, indent=2))
+
 	# Make request to Payfast
 	headers = {'Content-Type': 'application/json'}
+
 	url = f"{environment_url(payment_gateway_settings.environment)}/onsite/process"
 	res = requests.post(url, json=data, headers=headers)
 
