@@ -1,6 +1,7 @@
 import frappe
 import json
 import requests
+import time
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from datetime import datetime
 from ..utils import generateApiSignatureAlphabetical, get_payment_gateway, get_payment_gateway_settings
@@ -73,25 +74,36 @@ def _save_subscription_snapshot(token, merchant_id, response_data):
 		return
 
 	object_payload = response_data.get('data', {}).get('response', response_data)
-	merchant_id_value = merchant_id
-	try:
-		merchant_id_value = int(merchant_id)
-	except (TypeError, ValueError):
-		pass
 
 	try:
-		payfast_subscription = frappe.get_doc('Payfast Subscriptions', token)
-		payfast_subscription.merchant_id = merchant_id_value
-		payfast_subscription.object = json.dumps(object_payload, indent=2)
-		payfast_subscription.save(ignore_permissions=True)
+		for attempt in range(3):
+			try:
+				payfast_subscription = frappe.get_doc('Payfast Subscriptions', token)
+				# payfast_subscription.reload()  # Ensure we have the latest version to avoid overwriting concurrent updates
+				payfast_subscription.merchant_id = merchant_id
+				payfast_subscription.object = json.dumps(object_payload, indent=2)
+				payfast_subscription.save(ignore_permissions=True)
+				frappe.log_error(
+					"Payfast Update Subscription Snapshot",
+					f"Updated Payfast Subscription snapshot for token {payfast_subscription.name} and merchant_id {merchant_id}"
+				)
+				break
+			except Exception as e:
+				if attempt == 2:
+					raise
+				time.sleep((attempt + 1) * 0.01)
 	except frappe.DoesNotExistError:
 		payfast_subscription = frappe.get_doc({
 			'doctype': 'Payfast Subscriptions',
 			'token': token,
-			'merchant_id': merchant_id_value,
+			'merchant_id': merchant_id,
 			'object': json.dumps(object_payload, indent=2)
 		})
 		payfast_subscription.insert(ignore_permissions=True)
+		frappe.log_error(
+			"Payfast Create Subscription Snapshot",
+			f"Created Payfast Subscription snapshot for token {payfast_subscription.name} and merchant_id {merchant_id}\nResponse data: {json.dumps(object_payload, indent=2)}"
+		)
 	except Exception as e:
 		frappe.log_error(
 			"Payfast Save Subscription Snapshot",
@@ -138,6 +150,7 @@ def get_subscription(_suppress_http_error=False, **data):
 		url = _build_subscription_url(token, 'fetch', payment_gateway_settings)
 		res = requests.get(url, headers=headers)
 		response_data = res.json()
+		frappe.log_error("Payfast Get Subscription Response", f"Fetched Payfast Subscription for token {token} and merchant_id {merchant_id}\nResponse data: {json.dumps(response_data, indent=2)}")
 		if _is_successful_payfast_response(response_data):
 			_save_subscription_snapshot(token, merchant_id, response_data)
 		return response_data
@@ -229,6 +242,7 @@ def update_subscription(**data):
 
 		headers = _build_signed_headers(merchant_id, payment_gateway_settings, payload)
 		url = _build_subscription_url(token, 'update', payment_gateway_settings)
+		frappe.log_error("update_subscription INFO", f"Forwarding update_subscription request to PayFast:\nurl{url}\npayload: {payload}\nheaders: {headers}")
 		res = requests.patch(url, headers=headers, json=payload)
 		response_data = res.json()
 		if _is_successful_payfast_response(response_data):

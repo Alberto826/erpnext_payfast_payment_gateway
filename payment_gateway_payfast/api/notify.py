@@ -23,11 +23,8 @@ def notify(**data):
 		# validate notify request
 		integration_data = json.loads(integration_request.request_data)
 		frappe.log_error("Payfast Notification - integration data", json.dumps(integration_data, indent=2))
-		# app_settings_doc = frappe.get_doc(integration_data.get('app_settings_doc')).as_dict()
-		# gateway_doc = frappe.get_doc("Payment Gateway", app_settings_doc.get(integration_data.get('app_settings_doc_payment_gateway'))).as_dict()
-		# gateway_controller_doc = frappe.get_doc(gateway_doc.get('gateway_settings'), gateway_doc.get('gateway_controller'))
 		
-		gateway_doc = get_payment_gateway(integration_data.get('app_settings_doc'), integration_data.get('app_settings_doc_payment_gateway'), integration_data.get('payment_gateway_docname'))
+		gateway_doc = get_payment_gateway(integration_data.get('app_settings_doc'), integration_data.get('app_settings_doc_payment_gateway'), integration_data.get('payment_gateway'))
 		gateway_controller_doc = get_payment_gateway_settings(gateway_doc)
 		passphrase=gateway_controller_doc.get_password('passphrase')
 		pfParamString_Pass = build_validation_param_string(data, passphrase)
@@ -46,17 +43,17 @@ def notify(**data):
 			is_valid_transaction = validate_payfast_transaction(pfParamString, payfast_domain)
 
 		if not (is_valid_payfast_host and  is_valid_signature and is_valid_payment_amount and is_valid_transaction):
-			integration_request.db_set('status', 'Failed')
+			integration_request.db_set('status', 'Failed', commit=True)
 			integration_request.db_set('response_error', json.dumps({
 				'message': 'Invalid Payfast Notification callback',
 				'is_valid_payfast_host':is_valid_payfast_host,
 				'is_valid_signature':is_valid_signature,
 				'is_valid_payment_amount': is_valid_payment_amount,
 				'is_valid_transaction':is_valid_transaction,
+				'headers': dict(frappe.request.headers),
 				'pfParamString_Pass': pfParamString_Pass,
 				'pfParamString': pfParamString
-			}))
-			frappe.db.commit()
+			}, indent=2), commit=True)
 			frappe.local.response["http_status_code"] = 400
 			frappe.local.response["message"] = "Invalid Payfast Notification request"
 			raise Exception("Invalid Payfast Notification")
@@ -64,11 +61,12 @@ def notify(**data):
 		
 		# Update Integration Request
 		if not integration_request.get('first_payfast_itn'):
-			integration_request.db_set('first_payfast_itn', json.dumps(data, indent=2))
-		integration_request.db_set('status', "Completed")
+			integration_request.db_set('first_payfast_itn', json.dumps(data, indent=2), commit=True)
+		integration_request.db_set('status', "Completed", commit=True)
 
 		# Insert Subscription if data contains subscription token
 		if data.get('token') and integration_data:
+			frappe.log_error("Payfast Notify - Subscription Data", f"Subscription token {data.get('token')} found in notification data. Attempting to retrieve subscription details from Payfast.")
 			if int(integration_data.get('subscription_type'))==1:
 				# Get Subscription details from Payfast
 				subscription_response = get_subscription(**{
@@ -76,22 +74,26 @@ def notify(**data):
 					'merchant_id': data.get('merchant_id'),
 					'payment_gateway': gateway_doc.name,
 				})
-				subscription_object = None
-				if subscription_response.get('code')==200:
-					subscription_object = subscription_response.get('data').get('response')
-				# Create or Update Payfast Subscription
-				try:
-					payfast_subscription = frappe.get_doc('Payfast Subscriptions', data.get('token'))
-					payfast_subscription.object = json.dumps(subscription_object, indent=2)
-					payfast_subscription.save(ignore_permissions=True)
-				except frappe.DoesNotExistError:
-					payfast_subscription = frappe.get_doc({
-						'doctype': 'Payfast Subscriptions',
-						'token': data.get('token'),
-						'merchant_id': data.get('merchant_id'),
-						'object': json.dumps(subscription_object, indent=2)
-					})
-					payfast_subscription.insert(ignore_permissions=True)
+				# subscription_object = None
+				# if subscription_response.get('code')==200:
+				# 	subscription_object = subscription_response.get('data').get('response')
+				# # Create or Update Payfast Subscription
+				# try:
+				# 	payfast_subscription = frappe.get_doc('Payfast Subscriptions', data.get('token'))
+				# 	payfast_subscription.object = json.dumps(subscription_object, indent=2)
+				# 	payfast_subscription.save(ignore_permissions=True)
+				# 	frappe.log_error("Payfast Notify - Subscription Updated", f"Payfast Subscription for token {payfast_subscription.get('name')} updated with latest subscription details from Payfast.")
+				# except frappe.DoesNotExistError:
+				# 	payfast_subscription = frappe.get_doc({
+				# 		'doctype': 'Payfast Subscriptions',
+				# 		'token': data.get('token'),
+				# 		'merchant_id': data.get('merchant_id'),
+				# 		'object': json.dumps(subscription_object, indent=2)
+				# 	})
+				# 	payfast_subscription.insert(ignore_permissions=True)
+				# 	frappe.log_error("Payfast Notify - Subscription Created", f"Payfast Subscription for token {payfast_subscription.get('name')} created with subscription details from Payfast.")
+				# except Exception as e:
+				# 	frappe.log_error("Payfast Notify - FAIL", f"Error creating/updating Payfast Subscription for token {data.get('token')}: {str(e)}")
 					
 		# Insert Payfast Payment Notification
 		payfast_payment_notification = frappe.get_doc({
