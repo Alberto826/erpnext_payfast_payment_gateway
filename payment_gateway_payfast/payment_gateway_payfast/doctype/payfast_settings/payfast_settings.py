@@ -139,7 +139,6 @@ def validate_payfast_transaction(pfParamString, pfHost = 'https://sandbox.payfas
 @frappe.whitelist()
 def test_connection(data):
 	data = json.loads(data)
-	timestamp_var=datetime.now().isoformat()
 	env = data.get('environment') or 'Sandbox'
 	data.pop('environment', None)
 	passphrase = data.get('passphrase') or ''

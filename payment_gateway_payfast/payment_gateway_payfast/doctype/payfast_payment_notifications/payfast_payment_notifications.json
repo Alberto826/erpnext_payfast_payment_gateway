@@ -1,0 +1,238 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2025-09-27 18:13:13.422847",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "transaction_details_section",
+  "pf_payment_id",
+  "merchant_id",
+  "m_payment_id",
+  "payment_status",
+  "item_name",
+  "item_description",
+  "amount_gross",
+  "amount_fee",
+  "amount_net",
+  "column_break_oauw",
+  "custom_int1",
+  "custom_int2",
+  "custom_int3",
+  "custom_int4",
+  "custom_int5",
+  "custom_str1",
+  "custom_str2",
+  "custom_str3",
+  "custom_str4",
+  "custom_str5",
+  "customer_details_section",
+  "name_first",
+  "email_address",
+  "column_break_cnnk",
+  "name_last",
+  "recurring_billing_details_section",
+  "token",
+  "column_break_nicp",
+  "billing_date",
+  "security_information_section",
+  "signature"
+ ],
+ "fields": [
+  {
+   "fieldname": "transaction_details_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Details"
+  },
+  {
+   "fieldname": "pf_payment_id",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Payfast Payment ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "merchant_id",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Merchant ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "m_payment_id",
+   "fieldtype": "Data",
+   "label": "Merchant Payment ID"
+  },
+  {
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Payment Status",
+   "options": "\nCANCELLED\nCOMPLETE",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name"
+  },
+  {
+   "fieldname": "item_description",
+   "fieldtype": "Data",
+   "label": "Item Description"
+  },
+  {
+   "fieldname": "amount_gross",
+   "fieldtype": "Currency",
+   "label": "Amount Gross",
+   "precision": "2"
+  },
+  {
+   "fieldname": "amount_fee",
+   "fieldtype": "Currency",
+   "label": "Amount Fee",
+   "precision": "2"
+  },
+  {
+   "fieldname": "amount_net",
+   "fieldtype": "Currency",
+   "label": "Amount Net",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_oauw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "custom_int1",
+   "fieldtype": "Data",
+   "label": "Custom Int 1"
+  },
+  {
+   "fieldname": "custom_int2",
+   "fieldtype": "Data",
+   "label": "Custom Int 2"
+  },
+  {
+   "fieldname": "custom_int3",
+   "fieldtype": "Data",
+   "label": "Custom Int 3"
+  },
+  {
+   "fieldname": "custom_int4",
+   "fieldtype": "Data",
+   "label": "Custom Int 4"
+  },
+  {
+   "fieldname": "custom_int5",
+   "fieldtype": "Data",
+   "label": "Custom Int 5"
+  },
+  {
+   "fieldname": "custom_str1",
+   "fieldtype": "Data",
+   "label": "Custom Str 1"
+  },
+  {
+   "fieldname": "custom_str2",
+   "fieldtype": "Data",
+   "label": "Custom Str 2"
+  },
+  {
+   "fieldname": "custom_str3",
+   "fieldtype": "Data",
+   "label": "Custom Str 3"
+  },
+  {
+   "fieldname": "custom_str4",
+   "fieldtype": "Data",
+   "label": "Custom Str 4"
+  },
+  {
+   "fieldname": "custom_str5",
+   "fieldtype": "Data",
+   "label": "Custom Str 5"
+  },
+  {
+   "fieldname": "customer_details_section",
+   "fieldtype": "Section Break",
+   "label": "Customer Details"
+  },
+  {
+   "fieldname": "name_first",
+   "fieldtype": "Data",
+   "label": "Name First"
+  },
+  {
+   "fieldname": "email_address",
+   "fieldtype": "Data",
+   "label": "Email Address"
+  },
+  {
+   "fieldname": "column_break_cnnk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "name_last",
+   "fieldtype": "Data",
+   "label": "Name Last"
+  },
+  {
+   "fieldname": "recurring_billing_details_section",
+   "fieldtype": "Section Break",
+   "label": "Recurring Billing Details"
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Data",
+   "label": "Token"
+  },
+  {
+   "fieldname": "column_break_nicp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "billing_date",
+   "fieldtype": "Date",
+   "label": "Billing Date"
+  },
+  {
+   "fieldname": "security_information_section",
+   "fieldtype": "Section Break",
+   "label": "Security Information"
+  },
+  {
+   "fieldname": "signature",
+   "fieldtype": "Data",
+   "label": "Signature"
+  }
+ ],
+ "grid_page_length": 50,
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-09-27 21:35:20.284608",
+ "modified_by": "Administrator",
+ "module": "Payment Gateway Payfast",
+ "name": "Payfast Payment Notifications",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
