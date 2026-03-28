@@ -36,7 +36,9 @@
   "column_break_nicp",
   "billing_date",
   "security_information_section",
-  "signature"
+  "signature",
+  "accounting_payment_details_section",
+  "payment_entry"
  ],
  "fields": [
   {
@@ -206,13 +208,24 @@
    "fieldname": "signature",
    "fieldtype": "Data",
    "label": "Signature"
+  },
+  {
+   "fieldname": "accounting_payment_details_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Payment Details"
+  },
+  {
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry"
   }
  ],
  "grid_page_length": 50,
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-27 21:35:20.284608",
+ "modified": "2026-03-14 22:28:37.037538",
  "modified_by": "Administrator",
  "module": "Payment Gateway Payfast",
  "name": "Payfast Payment Notifications",
@@ -229,6 +242,18 @@
    "report": 1,
    "role": "System Manager",
    "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "share": 1,
+   "write": 1
   }
  ],
  "row_format": "Dynamic",
