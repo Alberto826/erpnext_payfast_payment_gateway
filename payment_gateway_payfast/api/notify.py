@@ -11,6 +11,7 @@ from .subscription import get_subscription
 
 @frappe.whitelist(allow_guest=True)
 def notify(**data):
+	data.pop('cmd', None)
 	integration_request = frappe.get_doc("Payfast Payment Request Logs", data.get('m_payment_id'))
 	if not integration_request:
 		frappe.local.response["http_status_code"] = 400
