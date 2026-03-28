@@ -6,89 +6,109 @@ import hashlib
 import json
 from payment_gateway_payfast.utils import *
 # from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
-from ..utils import generateApiSignature, environment_url, build_param_string
+from ..utils import generateApiSignature, environment_url, build_param_string, get_payment_gateway, get_payment_gateway_settings
 from .subscription import get_subscription
 
 @frappe.whitelist(allow_guest=True)
 def notify(**data):
-	data.pop('cmd', None)
-	integration_request = frappe.get_doc("Payfast Payment Request Logs", data.get('m_payment_id'))
-	if not integration_request:
-		frappe.local.response["http_status_code"] = 400
-		frappe.local.response["message"] = "Integration Request not found"
-		raise Exception("Integration Request not found")
-	
-	# validate notify request
-	integration_data = frappe._dict(json.loads(integration_request.request_data))
-	gateway_doc = frappe.get_doc(integration_data.get('payment_gateway_settings_doctype'), integration_data.get('payment_gateway_settings_docname'))
-	passphrase=gateway_doc.get_password('passphrase')
-	pfParamString_Pass = build_validation_param_string(data, passphrase)
-	pfParamString = build_validation_param_string(data)
-	pfParamString += f"&signature={hashlib.md5(pfParamString_Pass.encode()).hexdigest()}"
-	payfast_domain = urlparse(integration_request.get("request_url")).netloc
-	payfast_host = urlparse(frappe.request.headers.get("Referer")).netloc
+	try:
+		# frappe.log_error("Payfast Notification - incoming data", json.dumps(data, indent=2))
+		data.pop('cmd', None)
+		integration_request = frappe.get_doc("Payfast Payment Request Logs", data.get('m_payment_id'))
+		if not integration_request:
+			frappe.local.response["http_status_code"] = 400
+			frappe.local.response["message"] = "Integration Request not found"
+			raise Exception("Integration Request not found")
+		
+		# validate notify request
+		integration_data = json.loads(integration_request.request_data)
+		# frappe.log_error("Payfast Notification - integration data", json.dumps(integration_data, indent=2))
+		
+		gateway_doc = get_payment_gateway(integration_data.get('app_settings_doc'), integration_data.get('app_settings_doc_payment_gateway'), integration_request.get('payment_gateway'))
+		gateway_controller_doc = get_payment_gateway_settings(gateway_doc)
+		passphrase=gateway_controller_doc.get_password('passphrase')
+		pfParamString_Pass = build_validation_param_string(data, passphrase)
+		pfParamString = build_validation_param_string(data)
+		pfParamString += f"&signature={hashlib.md5(pfParamString_Pass.encode()).hexdigest()}"
+		payfast_domain = urlparse(integration_request.get("request_url")).netloc
+		payfast_host = urlparse(frappe.request.headers.get("Referer")).netloc
 
-	is_valid_payfast_host = validate_payfast_host(payfast_host)
-	is_valid_signature = validate_payfast_signature(data, pfParamString_Pass)
-	is_valid_payment_amount = validate_payfast_payment_amount(integration_data.get('amount'), data)
-	is_valid_transaction = validate_payfast_transaction(pfParamString, payfast_domain)
+		is_valid_payfast_host = validate_payfast_host(payfast_host)
+		is_valid_signature = validate_payfast_signature(data, pfParamString_Pass)
+		if data.get("payment_status") == "CANCELLED":
+			is_valid_payment_amount = True  # Skip amount validation for cancelled payments
+			is_valid_transaction = True  # Skip transaction validation for cancelled payments
+		else:
+			is_valid_payment_amount = validate_payfast_payment_amount(integration_data.get('amount'), data)
+			is_valid_transaction = validate_payfast_transaction(pfParamString, payfast_domain)
 
-	if not (is_valid_payfast_host and  is_valid_signature and is_valid_payment_amount and is_valid_transaction):
-		integration_request.db_set('status', 'Failed')
-		integration_request.db_set('response_error', json.dumps({
-			'message': 'Invalid Payfast Notification callback',
-			'is_valid_payfast_host':is_valid_payfast_host,
-			'is_valid_signature':is_valid_signature,
-			'is_valid_payment_amount': is_valid_payment_amount,
-			'is_valid_transaction':is_valid_transaction,
-			'pfParamString_Pass': pfParamString_Pass,
-			'pfParamString': pfParamString
-		}))
-		frappe.db.commit()
-		frappe.local.response["http_status_code"] = 400
-		frappe.local.response["message"] = "Invalid Payfast Notification request"
-		raise Exception("Invalid Payfast Notification")
+		if not (is_valid_payfast_host and  is_valid_signature and is_valid_payment_amount and is_valid_transaction):
+			integration_request.db_set('status', 'Failed', commit=True)
+			integration_request.db_set('response_error', json.dumps({
+				'message': 'Invalid Payfast Notification callback',
+				'is_valid_payfast_host':is_valid_payfast_host,
+				'is_valid_signature':is_valid_signature,
+				'is_valid_payment_amount': is_valid_payment_amount,
+				'is_valid_transaction':is_valid_transaction,
+				'headers': dict(frappe.request.headers),
+				'pfParamString_Pass': pfParamString_Pass,
+				'pfParamString': pfParamString
+			}, indent=2), commit=True)
+			frappe.local.response["http_status_code"] = 400
+			frappe.local.response["message"] = "Invalid Payfast Notification request"
+			raise Exception("Invalid Payfast Notification")
 	
-	# Insert Payfast Payment Notification
-	payfast_payment_notification = frappe.get_doc({
-		'doctype': 'Payfast Payment Notifications',
-		**data
-	})
-	payfast_payment_notification.save(ignore_permissions=True)
-	
-	# Update Integration Request
-	if not integration_request.get('first_payfast_itn'):
-		integration_request.db_set('first_payfast_itn', json.dumps(data, indent=2))
-	integration_request.db_set('status', "Completed")
+		
+		# Update Integration Request
+		if not integration_request.get('first_payfast_itn'):
+			integration_request.db_set('first_payfast_itn', json.dumps(data, indent=2), commit=True)
+		integration_request.db_set('status', "Completed", commit=True)
 
-	# Insert Subscription if data contains subscription token
-	if data.get('token') and integration_data:
-		if int(integration_data.get('subscription_type'))==1:
-			# Get Subscription details from Payfast
-			subscription_response = get_subscription(**{
-				'token': data.get('token'),
-				'merchant_id': data.get('merchant_id'),
-				'payment_gateway': integration_data.get('payment_gateway_docname')
-			}).json()
-			subscription_object = None
-			if subscription_response.get('code')==200:
-				subscription_object = subscription_response.get('data').get('response')
-			# Create or Update Payfast Subscription
-			try:
-				payfast_subscription = frappe.get_doc('Payfast Subscriptions', data.get('token'))
-				payfast_subscription.object = json.dumps(subscription_object, indent=2)
-				payfast_subscription.save(ignore_permissions=True)
-			except frappe.DoesNotExistError:
-				payfast_subscription = frappe.get_doc({
-					'doctype': 'Payfast Subscriptions',
+		# Insert Subscription if data contains subscription token
+		if data.get('token') and integration_data:
+			# frappe.log_error("Payfast Notify - Subscription Data", f"Subscription token {data.get('token')} found in notification data. Attempting to retrieve subscription details from Payfast.")
+			if int(integration_data.get('subscription_type'))==1:
+				# Get Subscription details from Payfast
+				subscription_response = get_subscription(**{
 					'token': data.get('token'),
 					'merchant_id': data.get('merchant_id'),
-					'object': json.dumps(subscription_object, indent=2)
+					'payment_gateway': gateway_doc.name,
 				})
-				payfast_subscription.insert(ignore_permissions=True)
+				# subscription_object = None
+				# if subscription_response.get('code')==200:
+				# 	subscription_object = subscription_response.get('data').get('response')
+				# # Create or Update Payfast Subscription
+				# try:
+				# 	payfast_subscription = frappe.get_doc('Payfast Subscriptions', data.get('token'))
+				# 	payfast_subscription.object = json.dumps(subscription_object, indent=2)
+				# 	payfast_subscription.save(ignore_permissions=True)
+				# 	frappe.log_error("Payfast Notify - Subscription Updated", f"Payfast Subscription for token {payfast_subscription.get('name')} updated with latest subscription details from Payfast.")
+				# except frappe.DoesNotExistError:
+				# 	payfast_subscription = frappe.get_doc({
+				# 		'doctype': 'Payfast Subscriptions',
+				# 		'token': data.get('token'),
+				# 		'merchant_id': data.get('merchant_id'),
+				# 		'object': json.dumps(subscription_object, indent=2)
+				# 	})
+				# 	payfast_subscription.insert(ignore_permissions=True)
+				# 	frappe.log_error("Payfast Notify - Subscription Created", f"Payfast Subscription for token {payfast_subscription.get('name')} created with subscription details from Payfast.")
+				# except Exception as e:
+				# 	frappe.log_error("Payfast Notify - FAIL", f"Error creating/updating Payfast Subscription for token {data.get('token')}: {str(e)}")
+					
+		# Insert Payfast Payment Notification
+		payfast_payment_notification = frappe.get_doc({
+			'doctype': 'Payfast Payment Notifications',
+			**data
+		})
+		payfast_payment_notification.save(ignore_permissions=True)
 
-	frappe.local.response["http_status_code"] = 200
-	return {"status": "success"}
+		frappe.local.response["http_status_code"] = 200
+		return {"status": "success"}
+	except Exception as e:
+		frappe.log_error("Payfast Notification", f"Error processing Payfast Notification: {str(e)}\n{frappe.get_traceback()}")
+		frappe.local.response["http_status_code"] = 500
+		frappe.local.response["message"] = "Error processing Payfast Notification"
+		return {"status": "error", "message": str(e)}
 	
 	# if (is_valid_payfast_host and  is_valid_signature and is_valid_payment_amount and is_valid_transaction):
 	# 	status = 'Completed' if payfast_notify_data.get('payment_status')=='COMPLETE' else 'Failed'
